@@ -1,4 +1,4 @@
-name: Deploy NestJS App to EC2
+name: Deploy NestJS App to EC2 # Changed name to be more specific
 
 on:
   push:
@@ -10,8 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3 # Using v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: your-aws-region
+
+      - name: Get secrets from Secrets Manager
+        run: |
+          # retrieve Stripe keys
+          STRIPE_SECRET=$(aws secretsmanager get-secret-value --secret-id STRIPE_SECRET_KEY --query SecretString --output text)
+          echo "STRIPE_SECRET=$STRIPE_SECRET" >> $GITHUB_ENV
+
+          # retrive db connection string
+          DB_CONNECTION_STRING=$(aws secretsmanager get-secret-value --secret-id DB_SECRET_NAME --query SecretString --output text)
+          echo "DB_CONNECTION_STRING=$DB_CONNECTION_STRING" >> $GITHUB_ENV # Corrected variable name
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
@@ -24,4 +41,7 @@ jobs:
             git pull origin main
             npm install
             npm run build
+            #  Make sure to use the variables retrieved from Secrets Manager
+            export STRIPE_SECRET="$STRIPE_SECRET"
+            export DB_CONNECTION_STRING="$DB_CONNECTION_STRING" # Corrected variable name
             pm2 restart all

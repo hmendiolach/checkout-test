@@ -1,13 +1,22 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products.module';
-import { PaymentsModule } from './payments/payments.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { AppDataSource } from '../data-source'; // Importa AppDataSource
 
 @Module({
-  imports: [AuthModule, UsersModule, ProductsModule, PaymentsModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot(AppDataSource.options), // Usa las opciones de AppDataSource
+    UsersModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
