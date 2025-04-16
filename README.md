@@ -49,8 +49,8 @@ Crea un archivo `.env` en la raíz del proyecto con:
 
 ```env
 DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/stripe_demo"
-JWT_SECRET="tu_clave_secreta"
-STRIPE_SECRET_KEY="sk_test_xxx"
+JWT_SECRET=""
+STRIPE_SECRET_KEY=""
 FRONTEND_URL="http://localhost:3000"
 ```
 
